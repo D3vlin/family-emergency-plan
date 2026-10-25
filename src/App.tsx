@@ -1,9 +1,17 @@
-function App() {
+import Home from "@pages/Home/Home";
+import { useWizard, WizardProvider } from "@wizard/WizardContext";
+import WizardLayout from "@wizard/WizardLayout";
+import "./App.css";
+
+export default function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <p className="text-slate-500">Plan Familiar de Emergencias</p>
-    </main>
-  )
+    <WizardProvider>
+      <AppScreen />
+    </WizardProvider>
+  );
 }
 
-export default App
+function AppScreen() {
+  const { currentScreen } = useWizard();
+  return currentScreen === "home" ? <Home /> : <WizardLayout />;
+}
