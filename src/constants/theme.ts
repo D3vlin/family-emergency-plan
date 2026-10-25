@@ -5,6 +5,7 @@ export const THEME = {
     success: "#2ECC71",
     error: "#E74C3C",
     background: "#F7F9FA",
+    text: "#1F2D2F",
   },
   fontFamily: "Inter, system-ui, sans-serif",
   fontFamilyDisplay: "'Fraunces', Georgia, serif",
@@ -17,4 +18,5 @@ export const Z_INDEX = {
   citationFooter: 20,
   modalBackdrop: 30,
   modalContent: 40,
+  globalControls: 50,
 } as const;

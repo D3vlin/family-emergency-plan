@@ -9,7 +9,7 @@ interface WizardNavProps {
 
 export default function WizardNav({ currentStep, isCurrentStepValid, onPrevious, onNext }: WizardNavProps) {
   return (
-    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
       <div className="ml-auto flex gap-3">
         {currentStep > 1 && (
           <button type="button" className="btn-secondary" onClick={onPrevious}>

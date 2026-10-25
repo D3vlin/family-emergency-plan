@@ -7,18 +7,43 @@
   --color-success: #2ecc71;
   --color-error: #e74c3c;
   --color-background: #f7f9fa;
+  --color-text: #1f2d2f;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
 }
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
   color-scheme: light;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-primary: #4fa8ae;
+    --color-accent: #ffc14d;
+    --color-success: #4ade80;
+    --color-error: #f87171;
+    --color-background: #0f2228;
+    --color-text: #e6edee;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-primary: #4fa8ae;
+  --color-accent: #ffc14d;
+  --color-success: #4ade80;
+  --color-error: #f87171;
+  --color-background: #0f2228;
+  --color-text: #e6edee;
+}
+
 body {
   margin: 0;
   background: var(--color-background);
-  color: #1f2d2f;
+  color: var(--color-text);
   font-family: var(--font-sans);
 }
 
