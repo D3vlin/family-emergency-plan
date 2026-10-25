@@ -31,4 +31,33 @@ describe("TextField", () => {
     render(<TextField id="plan-name" label="Nombre del plan" value="" onChange={() => {}} maxLength={150} />);
     expect(screen.getByLabelText(/nombre del plan/i)).toHaveAttribute("maxLength", "150");
   });
+
+  it("shows a field-level error as an alert, marking the input invalid", () => {
+    render(
+      <TextField id="age" label="Edad" value="" onChange={() => {}} error="La edad es obligatoria." />,
+    );
+    const input = screen.getByLabelText(/^edad$/i);
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveClass("field-input-invalid");
+    expect(screen.getByRole("alert")).toHaveTextContent("La edad es obligatoria.");
+  });
+
+  it("renders no error element when there's nothing to report", () => {
+    render(<TextField id="age" label="Edad" value="" onChange={() => {}} />);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("can be disabled", () => {
+    render(<TextField id="age" label="Edad" value="" onChange={() => {}} disabled />);
+    expect(screen.getByLabelText(/^edad$/i)).toBeDisabled();
+  });
+
+  it("applies the given inputMode and placeholder", () => {
+    render(
+      <TextField id="age" label="Edad" value="" onChange={() => {}} inputMode="numeric" placeholder="Número de 1 a 120" />,
+    );
+    const input = screen.getByLabelText(/^edad$/i);
+    expect(input).toHaveAttribute("inputMode", "numeric");
+    expect(input).toHaveAttribute("placeholder", "Número de 1 a 120");
+  });
 });
