@@ -8,6 +8,7 @@ describe("THEME", () => {
     expect(THEME.colors.success).toBe("#2ECC71");
     expect(THEME.colors.error).toBe("#E74C3C");
     expect(THEME.colors.background).toBe("#F7F9FA");
+    expect(THEME.colors.text).toBe("#1F2D2F");
   });
 
   it("exposes the agreed font stack", () => {
@@ -20,10 +21,11 @@ describe("THEME", () => {
 });
 
 describe("Z_INDEX", () => {
-  it("orders layers from content to modal content", () => {
+  it("orders layers from content to global controls", () => {
     expect(Z_INDEX.content).toBeLessThan(Z_INDEX.progressBar);
     expect(Z_INDEX.progressBar).toBeLessThan(Z_INDEX.citationFooter);
     expect(Z_INDEX.citationFooter).toBeLessThan(Z_INDEX.modalBackdrop);
     expect(Z_INDEX.modalBackdrop).toBeLessThan(Z_INDEX.modalContent);
+    expect(Z_INDEX.modalContent).toBeLessThan(Z_INDEX.globalControls);
   });
 });

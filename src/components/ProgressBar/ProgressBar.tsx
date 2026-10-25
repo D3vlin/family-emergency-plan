@@ -26,7 +26,7 @@ export default function ProgressBar({ planData, furthestAllowedStep, currentStep
   return (
     <nav
       aria-label="Progreso del plan"
-      className="sticky top-0 border-b border-slate-200 bg-background/95 px-4 py-2 text-primary backdrop-blur-sm"
+      className="sticky top-0 border-b border-slate-200 bg-background/95 px-4 py-2 text-primary backdrop-blur-sm dark:border-slate-700"
       style={{ zIndex: Z_INDEX.progressBar }}
     >
       <div className="mx-auto max-w-4xl">
@@ -34,7 +34,7 @@ export default function ProgressBar({ planData, furthestAllowedStep, currentStep
         <div className="mt-1 flex items-center justify-between text-2xl font-medium">
           <span>{percentage}% completado</span>
         </div>
-        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
           <div
             className="h-full rounded-full bg-accent transition-[width]"
             style={{ width: `${percentage}%` }}
@@ -64,7 +64,7 @@ export default function ProgressBar({ planData, furthestAllowedStep, currentStep
                   <span
                     title="Completá los pasos anteriores para poder avanzar hasta acá"
                     aria-disabled="true"
-                    className="block whitespace-nowrap rounded-full border border-slate-200 px-2 py-1 text-xs text-slate-400"
+                    className="block whitespace-nowrap rounded-full border border-slate-200 px-2 py-1 text-xs text-slate-400 dark:border-slate-700 dark:text-slate-500"
                   >
                     Paso {step} — {STEP_TITLES[step - 1]}
                   </span>

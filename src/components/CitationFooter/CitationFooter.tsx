@@ -3,7 +3,7 @@ import { Z_INDEX } from "@constants/theme";
 export default function CitationFooter() {
   return (
     <footer
-      className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-background px-4 py-2 text-center text-xs text-slate-500"
+      className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-background px-4 py-2 text-center text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400"
       style={{ zIndex: Z_INDEX.citationFooter }}
     >
       <p>
