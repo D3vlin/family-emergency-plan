@@ -5,10 +5,11 @@ import ProgressBar from "@components/ProgressBar/ProgressBar";
 import WizardNav from "@components/WizardNav/WizardNav";
 import Step1Header from "@pages/Step1Header/Step1Header";
 import Step2FamilyMembers from "@pages/Step2FamilyMembers/Step2FamilyMembers";
+import Step3Contacts from "@pages/Step3Contacts/Step3Contacts";
 import { isStepValid, TOTAL_STEPS } from "./stepValidators";
 import { useWizard } from "./WizardContext";
 
-const STEP_SCREENS = [Step1Header, Step2FamilyMembers];
+const STEP_SCREENS = [Step1Header, Step2FamilyMembers, Step3Contacts];
 
 export default function WizardLayout() {
   const { planData, furthestAllowedStep, currentScreen, goTo, warningVisible, dismissWarning, expiredRedirectVisible, restartPlan } =

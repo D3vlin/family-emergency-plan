@@ -89,6 +89,14 @@
     @apply border-t border-slate-100 dark:border-slate-800;
   }
 
+  .table-cell {
+    @apply p-3 align-top text-slate-800 dark:text-slate-200;
+  }
+
+  .table-cell-muted {
+    @apply p-3 align-top text-slate-700 dark:text-slate-300;
+  }
+
   .field-group {
     @apply min-w-0 rounded-md border border-slate-200 p-3 dark:border-slate-700;
   }

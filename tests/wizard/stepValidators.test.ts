@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { computeFurthestAllowedStep, isStepValid, STEP_HEADER } from "@wizard/stepValidators";
+import { computeFurthestAllowedStep, isStepValid, STEP_HEADER, STEP_FAMILY, STEP_CONTACTS } from "@wizard/stepValidators";
+import { createEmptyMember } from "@wizard/familyMember";
 
 describe("isStepValid", () => {
   it("step 1 (header) is valid with plan name and address filled", () => {
@@ -10,6 +11,21 @@ describe("isStepValid", () => {
     expect(isStepValid(STEP_HEADER, { header: { planName: "", address: "Calle 1" } })).toBe(false);
     expect(isStepValid(STEP_HEADER, {})).toBe(false);
   });
+
+  it("step 2 (familia) is invalid with no family members at all", () => {
+    expect(isStepValid(STEP_FAMILY, {})).toBe(false);
+    expect(isStepValid(STEP_FAMILY, { familyMembers: [] })).toBe(false);
+  });
+
+  it("step 2 is valid once every listed member is complete", () => {
+    const member = { ...createEmptyMember("1"), name: "Ana", documentType: "Cédula de Ciudadanía", documentNumber: "123", age: "30" };
+    expect(isStepValid(STEP_FAMILY, { familyMembers: [member] })).toBe(true);
+  });
+
+  it("step 3 (contactos) is valid even with an empty contact list", () => {
+    expect(isStepValid(STEP_CONTACTS, {})).toBe(true);
+    expect(isStepValid(STEP_CONTACTS, { contacts: [] })).toBe(true);
+  });
 });
 
 describe("computeFurthestAllowedStep", () => {
@@ -19,6 +35,15 @@ describe("computeFurthestAllowedStep", () => {
 
   it("unlocks past step 1 once it's valid", () => {
     const data = { header: { planName: "Familia Perez", address: "Calle 1" } };
-    expect(computeFurthestAllowedStep(data)).toBe(STEP_HEADER + 1);
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_FAMILY);
+  });
+
+  it("unlocks through step 3 once steps 1-2 are valid", () => {
+    const member = { ...createEmptyMember("1"), name: "Ana", documentType: "Cédula de Ciudadanía", documentNumber: "123", age: "30" };
+    const data = {
+      header: { planName: "Familia Perez", address: "Calle 1" },
+      familyMembers: [member],
+    };
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_CONTACTS + 1);
   });
 });

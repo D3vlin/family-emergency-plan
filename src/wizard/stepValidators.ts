@@ -1,9 +1,11 @@
 import { isMemberComplete, type FamilyMember } from "./familyMember";
+import type { Contact } from "./contact";
 
-export const TOTAL_STEPS = 2;
+export const TOTAL_STEPS = 3;
 
 export const STEP_HEADER = 1;
 export const STEP_FAMILY = 2;
+export const STEP_CONTACTS = 3;
 
 export interface HeaderStepData {
   planName?: string;
@@ -13,6 +15,7 @@ export interface HeaderStepData {
 export interface PlanData {
   header?: HeaderStepData;
   familyMembers?: FamilyMember[];
+  contacts?: Contact[];
   visitedSteps?: number[];
   confirmedSteps?: number[];
   [section: string]: unknown;
