@@ -4,10 +4,11 @@ import ExpirationModals from "@components/ExpirationModals/ExpirationModals";
 import ProgressBar from "@components/ProgressBar/ProgressBar";
 import WizardNav from "@components/WizardNav/WizardNav";
 import Step1Header from "@pages/Step1Header/Step1Header";
+import Step2FamilyMembers from "@pages/Step2FamilyMembers/Step2FamilyMembers";
 import { isStepValid, TOTAL_STEPS } from "./stepValidators";
 import { useWizard } from "./WizardContext";
 
-const STEP_SCREENS = [Step1Header];
+const STEP_SCREENS = [Step1Header, Step2FamilyMembers];
 
 export default function WizardLayout() {
   const { planData, furthestAllowedStep, currentScreen, goTo, warningVisible, dismissWarning, expiredRedirectVisible, restartPlan } =

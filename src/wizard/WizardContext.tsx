@@ -12,7 +12,13 @@ import { useInactivityTimer } from "@hooks/useInactivityTimer";
 import { clearPlan, loadPlan, savePlan } from "@storage/planStorage";
 import { registerTab } from "@storage/tabRegistry";
 import { computeFurthestAllowedStep, isStepValid, STEP_HEADER, type PlanData } from "./stepValidators";
+import { normalizeMember } from "./familyMember";
 import { INACTIVITY_EXPIRE_MS } from "@constants/timing";
+
+function normalizePlanData(data: PlanData): PlanData {
+  if (!Array.isArray(data.familyMembers)) return data;
+  return { ...data, familyMembers: data.familyMembers.map(normalizeMember) };
+}
 
 export type Screen = "home" | number;
 
@@ -51,7 +57,7 @@ function loadInitialState() {
   }
 
   return {
-    data: plan.data as PlanData,
+    data: normalizePlanData(plan.data as PlanData),
     lastVisitedPath: plan.lastVisitedPath,
     hasExistingPlan: true,
   };
