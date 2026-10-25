@@ -1,14 +1,12 @@
 import { useState } from "react";
 import Modal from "@components/Modal/Modal";
+import TableRowActions from "@components/TableRowActions/TableRowActions";
 import { STEP_TITLES } from "@constants/stepTitles";
 import { useWizard } from "@wizard/WizardContext";
 import { createEmptyMember, MAX_FAMILY_MEMBERS, type FamilyMember } from "@wizard/familyMember";
+import { getAddDisabledTitle, newId } from "@utils/listEditor";
 import DeleteMemberConfirm from "./DeleteMemberConfirm";
 import MemberEditRow from "./MemberEditRow";
-
-function newId(): string {
-  return Math.random().toString(36).slice(2);
-}
 
 export default function Step2FamilyMembers() {
   const { planData, updateField } = useWizard();
@@ -43,11 +41,7 @@ export default function Step2FamilyMembers() {
   const memberPendingDelete = members.find((m) => m.id === pendingDeleteId);
   const editingMember = members.find((m) => m.id === editingId);
   const isEditorOpen = newDraft !== null || editingId !== null;
-  const addDisabledTitle = isEditorOpen
-    ? "Guardá o cancelá la edición actual antes de continuar."
-    : members.length >= MAX_FAMILY_MEMBERS
-      ? "Llegaste al límite de 20 integrantes"
-      : undefined;
+  const addDisabledTitle = getAddDisabledTitle(isEditorOpen, members.length >= MAX_FAMILY_MEMBERS, "20 integrantes");
 
   return (
     <main>
@@ -70,27 +64,19 @@ export default function Step2FamilyMembers() {
             <tbody>
               {members.map((member) => (
                 <tr key={member.id} className="table-body-row">
-                  <td className="p-3 align-top text-slate-800 dark:text-slate-200">{member.name}</td>
-                  <td className="p-3 align-top text-slate-700 dark:text-slate-300">
+                  <td className="table-cell">{member.name}</td>
+                  <td className="table-cell-muted">
                     {member.documentType} {member.documentNumber}
                   </td>
-                  <td className="p-3 align-top text-slate-700 dark:text-slate-300">{member.relationship || "—"}</td>
-                  <td className="p-3 align-top text-slate-700 dark:text-slate-300">{member.age || "—"}</td>
+                  <td className="table-cell-muted">{member.relationship || "—"}</td>
+                  <td className="table-cell-muted">{member.age || "—"}</td>
                   <td className="p-3 align-top">
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        className="btn-secondary"
-                        onClick={() => setEditingId(member.id)}
-                        disabled={isEditorOpen}
-                        title={addDisabledTitle}
-                      >
-                        Editar
-                      </button>
-                      <button type="button" className="btn-danger" onClick={() => setPendingDeleteId(member.id)}>
-                        Eliminar
-                      </button>
-                    </div>
+                    <TableRowActions
+                      onEdit={() => setEditingId(member.id)}
+                      onDelete={() => setPendingDeleteId(member.id)}
+                      editDisabled={isEditorOpen}
+                      editDisabledTitle={addDisabledTitle}
+                    />
                   </td>
                 </tr>
               ))}
