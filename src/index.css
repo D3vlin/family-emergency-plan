@@ -1,5 +1,36 @@
 @import "tailwindcss";
 
+/* Visual identity */
+@theme {
+  --color-primary: #16424a;
+  --color-accent: #f2a71b;
+  --color-success: #2ecc71;
+  --color-error: #e74c3c;
+  --color-background: #f7f9fa;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
 body {
   margin: 0;
+  background: var(--color-background);
+  color: #1f2d2f;
+  font-family: var(--font-sans);
+}
+
+#root {
+  min-height: 100svh;
+}
+
+/* Mobile */
+@media (min-width: 768px) {
+  .page-shell {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 2rem;
+  }
 }

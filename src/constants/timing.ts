@@ -1,0 +1,2 @@
+export const INACTIVITY_WARNING_MS = 13 * 60 * 1000;
+export const INACTIVITY_EXPIRE_MS = 15 * 60 * 1000;

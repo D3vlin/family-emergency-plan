@@ -1,0 +1,4 @@
+export const MAX_SHORT_FIELD_LENGTH = 60;
+export const MAX_FIELD_LENGTH = 150;
+export const MAX_LONG_FIELD_LENGTH = 300;
+export const MAX_DOCUMENT_NUMBER_LENGTH = 20;
