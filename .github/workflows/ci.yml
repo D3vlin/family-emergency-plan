@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PRs into main must come from dev
+        if: github.event_name == 'pull_request' && github.head_ref != 'dev'
+        run: |
+          echo "::error::Only 'dev' may open PRs into 'main' (head was '${{ github.head_ref }}')."
+          exit 1
+
+  no-breaking-changes:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Block breaking-change commits before v1
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          BANG_MATCHES=$(git log "$BASE_SHA..$HEAD_SHA" --format='%H %s' | grep -E '^[0-9a-f]+ [a-z]+(\([^)]*\))?!:' || true)
+          FOOTER_MATCHES=$(git log "$BASE_SHA..$HEAD_SHA" --format='commit %H%n%B' | grep -B5 'BREAKING CHANGE:' || true)
+
+          if [ -n "$BANG_MATCHES" ] || [ -n "$FOOTER_MATCHES" ]; then
+            echo "::error::Found a commit marked as a breaking change (type!: or BREAKING CHANGE: footer). That would jump to version 1.0.0 on the next release — drop the marker, or if it's intentional, say so explicitly before merging."
+            echo "$BANG_MATCHES"
+            echo "$FOOTER_MATCHES"
+            exit 1
+          fi
+
+  build:
+    needs: guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm test
+      - run: pnpm run build
