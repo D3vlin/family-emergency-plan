@@ -1,9 +1,13 @@
 import { useState } from "react";
+import AddIconButton from "@components/AddIconButton/AddIconButton";
 import ConfirmDialog from "@components/ConfirmDialog/ConfirmDialog";
 import Modal from "@components/Modal/Modal";
+import ModalFormActions from "@components/ModalFormActions/ModalFormActions";
+import RemoveLinkButton from "@components/RemoveLinkButton/RemoveLinkButton";
 import SelectField from "@components/SelectField/SelectField";
 import TextField from "@components/TextField/TextField";
 import { MAX_DOCUMENT_NUMBER_LENGTH, MAX_SHORT_FIELD_LENGTH } from "@constants/fieldLimits";
+import { newId } from "@utils/listEditor";
 import { formatPhoneForDisplay, sanitizePhoneInput } from "@wizard/formatPhone";
 import {
   DOCUMENT_TYPES,
@@ -21,18 +25,6 @@ interface MemberEditRowProps {
   allMembers: FamilyMember[];
   onSave: (member: FamilyMember) => void;
   onCancel: () => void;
-}
-
-function newId(): string {
-  return Math.random().toString(36).slice(2);
-}
-
-function PlusIcon() {
-  return (
-    <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-      <path d="M10 4v12M4 10h12" />
-    </svg>
-  );
 }
 
 export default function MemberEditRow({ member, allMembers, onSave, onCancel }: MemberEditRowProps) {
@@ -269,13 +261,7 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
                   <tr key={`${phone}-${index}`} className="table-body-row">
                     <td className="p-2">{formatPhoneForDisplay(phone)}</td>
                     <td className="p-2">
-                      <button
-                        type="button"
-                        className="btn-link"
-                        onClick={() => setDraft({ ...draft, phones: draft.phones.filter((_, i) => i !== index) })}
-                      >
-                        Quitar
-                      </button>
+                      <RemoveLinkButton onClick={() => setDraft({ ...draft, phones: draft.phones.filter((_, i) => i !== index) })} />
                     </td>
                   </tr>
                 ))}
@@ -285,15 +271,7 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
         ) : (
           <p className="empty-state">Sin teléfonos agregados todavía.</p>
         )}
-        <button
-          type="button"
-          className="btn-secondary mt-2"
-          aria-label="Agregar teléfono"
-          title="Agregar teléfono"
-          onClick={() => setShowAddPhone(true)}
-        >
-          <PlusIcon />
-        </button>
+        <AddIconButton label="Agregar teléfono" onClick={() => setShowAddPhone(true)} />
 
         {showAddPhone && (
           <Modal role="alertdialog" ariaLabel="Agregar teléfono">
@@ -308,14 +286,7 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
               value={newPhone}
               onChange={(value) => setNewPhone(sanitizePhoneInput(value))}
             />
-            <div className="flex justify-end gap-2 pt-4">
-              <button type="button" className="btn-secondary" onClick={cancelAddPhone}>
-                Cancelar
-              </button>
-              <button type="button" className="btn-primary" onClick={submitAddPhone}>
-                Agregar
-              </button>
-            </div>
+            <ModalFormActions onCancel={cancelAddPhone} onConfirm={submitAddPhone} confirmLabel="Agregar" />
           </Modal>
         )}
       </fieldset>
@@ -347,9 +318,7 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
                   <tr key={illness.id} className="table-body-row">
                     <td className="p-2">{illness.name}</td>
                     <td className="p-2">
-                      <button type="button" className="btn-link" onClick={() => removeIllness(illness.id)}>
-                        Quitar
-                      </button>
+                      <RemoveLinkButton onClick={() => removeIllness(illness.id)} />
                     </td>
                   </tr>
                 ))}
@@ -359,15 +328,7 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
         ) : (
           <p className="empty-state">Sin enfermedades agregadas todavía.</p>
         )}
-        <button
-          type="button"
-          className="btn-secondary mt-2"
-          aria-label="Agregar enfermedad"
-          title="Agregar enfermedad"
-          onClick={() => setShowAddIllness(true)}
-        >
-          <PlusIcon />
-        </button>
+        <AddIconButton label="Agregar enfermedad" onClick={() => setShowAddIllness(true)} />
 
         {showAddIllness && (
           <Modal role="alertdialog" ariaLabel="Agregar enfermedad">
@@ -380,14 +341,7 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
               value={newIllness}
               onChange={setNewIllness}
             />
-            <div className="flex justify-end gap-2 pt-4">
-              <button type="button" className="btn-secondary" onClick={cancelAddIllness}>
-                Cancelar
-              </button>
-              <button type="button" className="btn-primary" onClick={submitAddIllness}>
-                Agregar
-              </button>
-            </div>
+            <ModalFormActions onCancel={cancelAddIllness} onConfirm={submitAddIllness} confirmLabel="Agregar" />
           </Modal>
         )}
       </fieldset>
@@ -412,9 +366,7 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
                     <td className="p-2">{medication.dose || "—"}</td>
                     <td className="p-2">{linkedIllnessNames(medication.illnessIds)}</td>
                     <td className="p-2">
-                      <button type="button" className="btn-link" onClick={() => removeMedication(medication.id)}>
-                        Quitar
-                      </button>
+                      <RemoveLinkButton onClick={() => removeMedication(medication.id)} />
                     </td>
                   </tr>
                 ))}
@@ -424,15 +376,7 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
         ) : (
           <p className="empty-state">Sin medicamentos agregados todavía.</p>
         )}
-        <button
-          type="button"
-          className="btn-secondary mt-2"
-          aria-label="Agregar medicamento"
-          title="Agregar medicamento"
-          onClick={() => setShowAddMedication(true)}
-        >
-          <PlusIcon />
-        </button>
+        <AddIconButton label="Agregar medicamento" onClick={() => setShowAddMedication(true)} />
 
         {showAddMedication && (
           <Modal role="alertdialog" ariaLabel="Agregar medicamento">
@@ -474,36 +418,18 @@ export default function MemberEditRow({ member, allMembers, onSave, onCancel }: 
                 ))}
               </fieldset>
             )}
-            <div className="flex justify-end gap-2 pt-4">
-              <button type="button" className="btn-secondary" onClick={cancelAddMedication}>
-                Cancelar
-              </button>
-              <button type="button" className="btn-primary" onClick={submitAddMedication}>
-                Agregar
-              </button>
-            </div>
+            <ModalFormActions onCancel={cancelAddMedication} onConfirm={submitAddMedication} confirmLabel="Agregar" />
           </Modal>
         )}
       </fieldset>
 
-      <div className="flex justify-end gap-2 pt-4">
-        <button type="button" className="btn-secondary" onClick={onCancel}>
-          Cancelar
-        </button>
-        <button
-          type="button"
-          className="btn-primary"
-          disabled={!requiredFieldsFilled}
-          title={
-            requiredFieldsFilled
-              ? undefined
-              : "Completá nombre, tipo de documento, identificación y edad para guardar"
-          }
-          onClick={handleSave}
-        >
-          Guardar
-        </button>
-      </div>
+      <ModalFormActions
+        onCancel={onCancel}
+        onConfirm={handleSave}
+        confirmLabel="Guardar"
+        confirmDisabled={!requiredFieldsFilled}
+        confirmDisabledTitle="Completá nombre, tipo de documento, identificación y edad para guardar"
+      />
     </div>
   );
 }

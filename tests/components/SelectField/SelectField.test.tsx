@@ -85,4 +85,19 @@ describe("SelectField", () => {
     expect(select).toHaveClass("field-input-invalid");
     expect(screen.getByRole("alert")).toHaveTextContent("Seleccioná un tipo de documento.");
   });
+
+  it("focuses the select on mount when autoFocus is set", () => {
+    render(
+      <SelectField
+        id="doc-type"
+        label="Tipo de documento"
+        options={OPTIONS}
+        placeholder="Seleccioná un tipo"
+        value=""
+        onChange={() => {}}
+        autoFocus
+      />,
+    );
+    expect(screen.getByLabelText(/tipo de documento/i)).toHaveFocus();
+  });
 });

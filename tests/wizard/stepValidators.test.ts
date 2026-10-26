@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { computeFurthestAllowedStep, isStepValid, STEP_HEADER, STEP_FAMILY, STEP_CONTACTS } from "@wizard/stepValidators";
+import {
+  computeFurthestAllowedStep,
+  isStepValid,
+  STEP_HEADER,
+  STEP_FAMILY,
+  STEP_CONTACTS,
+  STEP_DISABILITIES,
+} from "@wizard/stepValidators";
 import { createEmptyMember } from "@wizard/familyMember";
 
 describe("isStepValid", () => {
@@ -26,6 +33,30 @@ describe("isStepValid", () => {
     expect(isStepValid(STEP_CONTACTS, {})).toBe(true);
     expect(isStepValid(STEP_CONTACTS, { contacts: [] })).toBe(true);
   });
+
+  it("step 4 (discapacidades) is valid when marked as not applicable", () => {
+    expect(isStepValid(STEP_DISABILITIES, { disabilitiesNotApplicable: true })).toBe(true);
+  });
+
+  it("step 4 is invalid with members but no disability data at all", () => {
+    const member = { ...createEmptyMember("1"), name: "Ana" };
+    expect(isStepValid(STEP_DISABILITIES, { familyMembers: [member] })).toBe(false);
+  });
+
+  it("step 4 is invalid once a member has a disability but no life-support answer", () => {
+    const member = { ...createEmptyMember("1"), name: "Ana", disabilities: [{ id: "d1", type: "Visual" }] };
+    expect(isStepValid(STEP_DISABILITIES, { familyMembers: [member] })).toBe(false);
+  });
+
+  it("step 4 is valid once every member with a disability has life-support resolved", () => {
+    const member = {
+      ...createEmptyMember("1"),
+      name: "Ana",
+      disabilities: [{ id: "d1", type: "Visual" }],
+      requiresLifeSupport: "No requiere",
+    };
+    expect(isStepValid(STEP_DISABILITIES, { familyMembers: [member] })).toBe(true);
+  });
 });
 
 describe("computeFurthestAllowedStep", () => {
@@ -38,12 +69,28 @@ describe("computeFurthestAllowedStep", () => {
     expect(computeFurthestAllowedStep(data)).toBe(STEP_FAMILY);
   });
 
-  it("unlocks through step 3 once steps 1-2 are valid", () => {
+  it("stays at step 4 once steps 1-3 are valid but the disability section isn't resolved yet", () => {
     const member = { ...createEmptyMember("1"), name: "Ana", documentType: "Cédula de Ciudadanía", documentNumber: "123", age: "30" };
     const data = {
       header: { planName: "Familia Perez", address: "Calle 1" },
       familyMembers: [member],
     };
-    expect(computeFurthestAllowedStep(data)).toBe(STEP_CONTACTS + 1);
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_DISABILITIES);
+  });
+
+  it("unlocks past step 4 once the disability section is resolved too", () => {
+    const member = {
+      ...createEmptyMember("1"),
+      name: "Ana",
+      documentType: "Cédula de Ciudadanía",
+      documentNumber: "123",
+      age: "30",
+    };
+    const data = {
+      header: { planName: "Familia Perez", address: "Calle 1" },
+      familyMembers: [member],
+      disabilitiesNotApplicable: true,
+    };
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_DISABILITIES + 1);
   });
 });

@@ -129,6 +129,10 @@
     @apply max-w-3xl;
   }
 
+  .modal-actions {
+    @apply flex justify-end gap-2 pt-4;
+  }
+
   .home-shell {
     @apply relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6 py-20 text-center;
     background-color: var(--color-background);
