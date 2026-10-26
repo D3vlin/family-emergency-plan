@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ModalFormActions from "@components/ModalFormActions/ModalFormActions";
 import TextField from "@components/TextField/TextField";
 import { MAX_SHORT_FIELD_LENGTH } from "@constants/fieldLimits";
 import { isPhoneFormatValid, type Contact } from "@wizard/contact";
@@ -73,20 +74,13 @@ export default function ContactEditRow({ contact, onSave, onCancel }: ContactEdi
         onChange={(value) => setDraft({ ...draft, relationship: value })}
       />
 
-      <div className="flex justify-end gap-2 pt-4">
-        <button type="button" className="btn-secondary" onClick={onCancel}>
-          Cancelar
-        </button>
-        <button
-          type="button"
-          className="btn-primary"
-          disabled={!requiredFieldsFilled}
-          title={requiredFieldsFilled ? undefined : "Completá nombre y teléfono para guardar"}
-          onClick={handleSave}
-        >
-          Guardar
-        </button>
-      </div>
+      <ModalFormActions
+        onCancel={onCancel}
+        onConfirm={handleSave}
+        confirmLabel="Guardar"
+        confirmDisabled={!requiredFieldsFilled}
+        confirmDisabledTitle="Completá nombre y teléfono para guardar"
+      />
     </div>
   );
 }

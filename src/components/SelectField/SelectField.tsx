@@ -7,6 +7,7 @@ interface SelectFieldProps {
   placeholder: string;
   required?: boolean;
   error?: string;
+  autoFocus?: boolean;
 }
 
 export default function SelectField({
@@ -18,6 +19,7 @@ export default function SelectField({
   placeholder,
   required = true,
   error,
+  autoFocus,
 }: SelectFieldProps) {
   return (
     <>
@@ -30,6 +32,7 @@ export default function SelectField({
         required={required}
         aria-required={required}
         aria-invalid={error ? "true" : undefined}
+        autoFocus={autoFocus}
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
