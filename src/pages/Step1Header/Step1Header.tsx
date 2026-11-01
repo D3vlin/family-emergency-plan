@@ -1,6 +1,6 @@
+import StepPage from "@components/StepPage/StepPage";
 import TextField from "@components/TextField/TextField";
 import { MAX_FIELD_LENGTH } from "@constants/fieldLimits";
-import { STEP_TITLES } from "@constants/stepTitles";
 import { useWizard } from "@wizard/WizardContext";
 import type { HeaderStepData } from "@wizard/stepValidators";
 
@@ -13,8 +13,7 @@ export default function Step1Header() {
   }
 
   return (
-    <main>
-      <h1 className="page-title">Paso 1 — {STEP_TITLES[0]}</h1>
+    <StepPage step={1}>
       <form>
         <TextField
           id="plan-name"
@@ -31,6 +30,6 @@ export default function Step1Header() {
           onChange={(value) => handleChange("address", value)}
         />
       </form>
-    </main>
+    </StepPage>
   );
 }

@@ -2,9 +2,9 @@ import { useState } from "react";
 import Modal from "@components/Modal/Modal";
 import ModalFormActions from "@components/ModalFormActions/ModalFormActions";
 import RemoveButton from "@components/RemoveButton/RemoveButton";
+import StepPage from "@components/StepPage/StepPage";
 import TextField from "@components/TextField/TextField";
 import { MAX_SHORT_FIELD_LENGTH } from "@constants/fieldLimits";
-import { STEP_TITLES } from "@constants/stepTitles";
 import { getAddDisabledTitle, newId } from "@utils/listEditor";
 import { formatPhoneForDisplay, sanitizePhoneInput } from "@wizard/formatPhone";
 import { useWizard } from "@wizard/WizardContext";
@@ -84,9 +84,7 @@ export default function Step5FrequentSites() {
   const isAdding = addingMemberId !== null;
 
   return (
-    <main>
-      <h1 className="page-title">Paso 5 — {STEP_TITLES[4]}</h1>
-
+    <StepPage step={5}>
       <div className="space-y-4">
         {members.map((member) => {
           const atLimit = member.frequentSites.length >= MAX_SITES_PER_MEMBER;
@@ -188,6 +186,6 @@ export default function Step5FrequentSites() {
             </Modal>
           );
         })()}
-    </main>
+    </StepPage>
   );
 }
