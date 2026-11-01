@@ -12,6 +12,7 @@ interface TextFieldProps {
   autoFocus?: boolean;
   multiline?: boolean;
   rows?: number;
+  hideLabel?: boolean;
 }
 
 export default function TextField({
@@ -28,12 +29,14 @@ export default function TextField({
   autoFocus,
   multiline = false,
   rows,
+  hideLabel = false,
 }: TextFieldProps) {
   const className = `field-input ${error ? "field-input-invalid" : ""}`;
+  const labelClassName = hideLabel ? "sr-only" : required ? "field-label field-label-required" : "field-label";
 
   return (
     <>
-      <label htmlFor={id} className={required ? "field-label field-label-required" : "field-label"}>
+      <label htmlFor={id} className={labelClassName}>
         {label}
       </label>
       {multiline ? (

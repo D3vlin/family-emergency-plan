@@ -1,0 +1,17 @@
+export const HOUSING_CHECK_ITEMS = [
+  "Norma de sismo resistencia",
+  "Estado general de la estructura, paredes y escaleras",
+  "Estado de ventanas",
+  "Estado del techo",
+  "Estado de redes eléctricas",
+  "Estado de desagües, bajantes y alcantarillado",
+  "Estado de la red de gas",
+  "Armarios asegurados",
+  "Lámparas aseguradas",
+  "Cuadros, espejos y mesas asegurados",
+  "Tienen botiquín",
+  "Personas capacitadas en primeros auxilios",
+  "Tienen extintores",
+  "Listado de herramientas",
+  "Kit de emergencia organizado",
+];
