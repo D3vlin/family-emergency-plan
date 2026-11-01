@@ -12,7 +12,7 @@ import { useInactivityTimer } from "@hooks/useInactivityTimer";
 import { clearPlan, loadPlan, savePlan, STORAGE_KEY } from "@storage/planStorage";
 import { registerTab } from "@storage/tabRegistry";
 import { claimExclusiveEditing, isLockedByAnotherTab, releaseExclusiveEditingIfOwner, TAB_LOCK_KEY } from "@storage/tabLock";
-import { computeFurthestAllowedStep, isStepValid, STEP_HEADER, type PlanData } from "./stepValidators";
+import { computeFurthestAllowedStep, isStepValid, STEP_HEADER, TOTAL_STEPS, type PlanData } from "./stepValidators";
 import { normalizeMember } from "./familyMember";
 import { INACTIVITY_EXPIRE_MS } from "@constants/timing";
 
@@ -21,14 +21,16 @@ function normalizePlanData(data: PlanData): PlanData {
   return { ...data, familyMembers: data.familyMembers.map(normalizeMember) };
 }
 
-export type Screen = "home" | number;
+export type Screen = "home" | number | "review";
 
 function screenToPath(screen: Screen): string {
   if (screen === "home") return "/";
+  if (screen === "review") return "/review";
   return `/step/${screen}`;
 }
 
 function pathToScreen(path: string): Screen {
+  if (path === "/review") return "review";
   const match = path.match(/^\/step\/(\d+)$/);
   return match ? Number(match[1]) : "home";
 }
@@ -46,6 +48,10 @@ interface WizardContextValue {
   crossTabChangeDetected: boolean;
   lockedOut: boolean;
   takeOverAsOnlyEditor: () => void;
+  isEditingFromReview: boolean;
+  startSectionEdit: (step: number) => void;
+  returnToReview: () => void;
+  consumeReviewFocusStep: () => number | null;
 }
 
 const WizardContext = createContext<WizardContextValue | null>(null);
@@ -79,6 +85,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const [expiredRedirectVisible, setExpiredRedirectVisible] = useState(false);
   const [crossTabChangeDetected, setCrossTabChangeDetected] = useState(false);
   const [lockedOut, setLockedOut] = useState(() => isLockedByAnotherTab());
+  const [reviewEditOrigin, setReviewEditOrigin] = useState<number | null>(null);
+  const [reviewFocusStep, setReviewFocusStep] = useState<number | null>(null);
+  const touchedStepsRef = useRef<Set<number>>(new Set());
   const previousScreenRef = useRef<Screen | null>(null);
 
   const goTo = useCallback((next: Screen) => setCurrentScreen(next), []);
@@ -107,13 +116,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
 
     const leftScreen = previousScreenRef.current;
     if (typeof leftScreen === "number") {
+      const arrivingAtStep = currentScreen === "review" ? TOTAL_STEPS + 1 : currentScreen;
       const confirmed = (nextData.confirmedSteps as number[] | undefined) ?? [];
-      if (
-        typeof currentScreen === "number" &&
-        currentScreen > leftScreen &&
-        isStepValid(leftScreen, nextData) &&
-        !confirmed.includes(leftScreen)
-      ) {
+      if (arrivingAtStep > leftScreen && isStepValid(leftScreen, nextData) && !confirmed.includes(leftScreen)) {
         nextData = { ...nextData, confirmedSteps: [...confirmed, leftScreen].sort((a, b) => a - b) };
       }
     }
@@ -158,6 +163,31 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     window.addEventListener("storage", handleStorageEvent);
     return () => window.removeEventListener("storage", handleStorageEvent);
   }, []);
+
+  useEffect(() => {
+    if (reviewEditOrigin === null) return;
+    if (typeof currentScreen === "number") touchedStepsRef.current.add(currentScreen);
+  }, [currentScreen, reviewEditOrigin]);
+
+  const startSectionEdit = useCallback((step: number) => {
+    touchedStepsRef.current = new Set([step]);
+    setReviewEditOrigin(step);
+    setCurrentScreen(step);
+  }, []);
+
+  const returnToReview = useCallback(() => {
+    const touched = touchedStepsRef.current;
+    setReviewFocusStep(touched.size === 1 ? reviewEditOrigin : null);
+    setReviewEditOrigin(null);
+    touchedStepsRef.current = new Set();
+    setCurrentScreen("review");
+  }, [reviewEditOrigin]);
+
+  const consumeReviewFocusStep = useCallback(() => {
+    const step = reviewFocusStep;
+    setReviewFocusStep(null);
+    return step;
+  }, [reviewFocusStep]);
 
   const updateField = useCallback(
     (section: string, value: unknown) => {
@@ -205,6 +235,10 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     crossTabChangeDetected,
     lockedOut,
     takeOverAsOnlyEditor,
+    isEditingFromReview: reviewEditOrigin !== null,
+    startSectionEdit,
+    returnToReview,
+    consumeReviewFocusStep,
   };
 
   return <WizardContext.Provider value={value}>{children}</WizardContext.Provider>;

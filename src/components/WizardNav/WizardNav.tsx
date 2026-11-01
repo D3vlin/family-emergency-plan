@@ -1,22 +1,36 @@
 import { TOTAL_STEPS } from "@wizard/stepValidators";
 
 interface WizardNavProps {
-  currentStep: number; // 1..TOTAL_STEPS
+  currentStep: number; // 1..TOTAL_STEPS, or TOTAL_STEPS + 1 for the review screen
   isCurrentStepValid: boolean;
+  isEditingFromReview: boolean;
+  onReturnToReview: () => void;
   onPrevious: () => void;
   onNext: () => void;
 }
 
-export default function WizardNav({ currentStep, isCurrentStepValid, onPrevious, onNext }: WizardNavProps) {
+export default function WizardNav({
+  currentStep,
+  isCurrentStepValid,
+  isEditingFromReview,
+  onReturnToReview,
+  onPrevious,
+  onNext,
+}: WizardNavProps) {
   return (
     <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
+      {isEditingFromReview && (
+        <button type="button" className="btn-link" onClick={onReturnToReview}>
+          ← Volver a la revisión
+        </button>
+      )}
       <div className="ml-auto flex gap-3">
         {currentStep > 1 && (
           <button type="button" className="btn-secondary" onClick={onPrevious}>
             Anterior
           </button>
         )}
-        {currentStep < TOTAL_STEPS && (
+        {currentStep <= TOTAL_STEPS && (
           <button
             type="button"
             className="btn-primary"

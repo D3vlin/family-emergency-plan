@@ -13,6 +13,8 @@ interface TextFieldProps {
   multiline?: boolean;
   rows?: number;
   hideLabel?: boolean;
+  type?: "text" | "date";
+  min?: string;
 }
 
 export default function TextField({
@@ -30,6 +32,8 @@ export default function TextField({
   multiline = false,
   rows,
   hideLabel = false,
+  type = "text",
+  min,
 }: TextFieldProps) {
   const className = `field-input ${error ? "field-input-invalid" : ""}`;
   const labelClassName = hideLabel ? "sr-only" : required ? "field-label field-label-required" : "field-label";
@@ -57,6 +61,7 @@ export default function TextField({
       ) : (
         <input
           id={id}
+          type={type}
           className={className}
           maxLength={maxLength}
           required={required}
@@ -66,6 +71,7 @@ export default function TextField({
           disabled={disabled}
           placeholder={placeholder}
           autoFocus={autoFocus}
+          min={min}
           value={value}
           onChange={(event) => onChange(event.target.value)}
         />

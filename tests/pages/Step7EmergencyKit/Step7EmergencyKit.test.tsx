@@ -38,8 +38,8 @@ describe("Step7EmergencyKit", () => {
   it("keeps each list's items independent from the other list", () => {
     renderStep7();
     addKitItem(/suministros de supervivencia/i, SURVIVAL_SUPPLIES[0]);
-    const list2 = screen.getByRole("group", { name: /documentos y elementos complementarios/i });
-    expect(within(list2).queryByText(SURVIVAL_SUPPLIES[0])).not.toBeInTheDocument();
+    const complementaryItemsGroup = screen.getByRole("group", { name: /documentos y elementos complementarios/i });
+    expect(within(complementaryItemsGroup).queryByText(SURVIVAL_SUPPLIES[0])).not.toBeInTheDocument();
   });
 
   it("removes an added item, returning it to the 'Agregar ítem' options", () => {
