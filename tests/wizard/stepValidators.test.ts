@@ -10,8 +10,10 @@ import {
   STEP_RISKS,
   STEP_EMERGENCY_KIT,
   STEP_HOUSING_CHECK,
+  STEP_PETS,
 } from "@wizard/stepValidators";
 import { createEmptyMember } from "@wizard/familyMember";
+import { createEmptyPet } from "@wizard/pet";
 
 describe("isStepValid", () => {
   it("step 1 (header) is valid with plan name and address filled", () => {
@@ -89,6 +91,20 @@ describe("isStepValid", () => {
     ).toBe(false);
     expect(isStepValid(STEP_HOUSING_CHECK, { housingCheck: { "Estado de ventanas": { status: "malo" } } })).toBe(true);
   });
+
+  it("step 9 (mascotas) is invalid with no pets listed and 'no aplica' unchecked", () => {
+    expect(isStepValid(STEP_PETS, {})).toBe(false);
+    expect(isStepValid(STEP_PETS, { pets: [] })).toBe(false);
+  });
+
+  it("step 9 is valid once marked as not applicable", () => {
+    expect(isStepValid(STEP_PETS, { petsNotApplicable: true })).toBe(true);
+  });
+
+  it("step 9 is valid once every listed pet has name and species", () => {
+    const pet = { ...createEmptyPet("1"), name: "Firulais", species: "Perro" };
+    expect(isStepValid(STEP_PETS, { pets: [pet] })).toBe(true);
+  });
 });
 
 describe("computeFurthestAllowedStep", () => {
@@ -110,7 +126,7 @@ describe("computeFurthestAllowedStep", () => {
     expect(computeFurthestAllowedStep(data)).toBe(STEP_DISABILITIES);
   });
 
-  it("unlocks past step 4 and through steps 5-8 (all optional while empty) once the disability section is resolved too", () => {
+  it("unlocks past step 4 and through steps 5-8 (optional while empty), stopping at step 9 (mascotas) until resolved", () => {
     const member = {
       ...createEmptyMember("1"),
       name: "Ana",
@@ -123,7 +139,24 @@ describe("computeFurthestAllowedStep", () => {
       familyMembers: [member],
       disabilitiesNotApplicable: true,
     };
-    expect(computeFurthestAllowedStep(data)).toBe(STEP_HOUSING_CHECK + 1);
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_PETS);
+  });
+
+  it("unlocks through step 9 once pets is marked as not applicable too", () => {
+    const member = {
+      ...createEmptyMember("1"),
+      name: "Ana",
+      documentType: "Cédula de Ciudadanía",
+      documentNumber: "123",
+      age: "30",
+    };
+    const data = {
+      header: { planName: "Familia Perez", address: "Calle 1" },
+      familyMembers: [member],
+      disabilitiesNotApplicable: true,
+      petsNotApplicable: true,
+    };
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_PETS + 1);
   });
 
   it("stops at step 8 once a housing item is added without its estado resolved", () => {

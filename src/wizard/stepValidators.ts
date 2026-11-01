@@ -1,8 +1,9 @@
 import { isDisabilitySectionValid, isMemberComplete, type FamilyMember } from "./familyMember";
 import type { Contact } from "./contact";
 import type { HousingCheckData } from "@pages/Step8HousingCheck/Step8HousingCheck";
+import { isPetComplete, type Pet } from "./pet";
 
-export const TOTAL_STEPS = 8;
+export const TOTAL_STEPS = 9;
 
 export const STEP_HEADER = 1;
 export const STEP_FAMILY = 2;
@@ -12,6 +13,7 @@ export const STEP_SITES = 5;
 export const STEP_RISKS = 6;
 export const STEP_EMERGENCY_KIT = 7;
 export const STEP_HOUSING_CHECK = 8;
+export const STEP_PETS = 9;
 
 export interface HeaderStepData {
   planName?: string;
@@ -24,6 +26,8 @@ export interface PlanData {
   contacts?: Contact[];
   disabilitiesNotApplicable?: boolean;
   housingCheck?: HousingCheckData;
+  pets?: Pet[];
+  petsNotApplicable?: boolean;
   visitedSteps?: number[];
   confirmedSteps?: number[];
   [section: string]: unknown;
@@ -47,6 +51,11 @@ export function isStepValid(step: number, data: PlanData): boolean {
   if (step === STEP_HOUSING_CHECK) {
     const housingCheck = data.housingCheck ?? {};
     return Object.values(housingCheck).every((entry) => Boolean(entry?.status));
+  }
+  if (step === STEP_PETS) {
+    if (data.petsNotApplicable) return true;
+    const pets = data.pets ?? [];
+    return pets.length > 0 && pets.every(isPetComplete);
   }
   return true;
 }
