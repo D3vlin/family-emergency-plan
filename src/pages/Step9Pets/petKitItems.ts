@@ -1,0 +1,16 @@
+export const PET_KIT_ITEMS = [
+  "Alimento húmedo o seco para 5 días",
+  "Agua para 5 días",
+  "Transportadora o guacal",
+  "Foto reciente con descripción física",
+  "Información de microchip",
+  "Documento de adopción",
+  "Carnet de vacunas",
+  "Información de alergias",
+  "Información de comportamiento especial",
+  "Listado de medicamentos, dosis y horarios",
+  "Reserva de medicamentos con fecha vigente",
+  "Botiquín de primeros auxilios",
+  "Pañitos húmedos y bolsas",
+  "Correa, arnés, bozal o juguete",
+];

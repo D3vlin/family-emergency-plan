@@ -11,6 +11,7 @@ import Step5FrequentSites from "@pages/Step5FrequentSites/Step5FrequentSites";
 import Step6Risks from "@pages/Step6Risks/Step6Risks";
 import Step7EmergencyKit from "@pages/Step7EmergencyKit/Step7EmergencyKit";
 import Step8HousingCheck from "@pages/Step8HousingCheck/Step8HousingCheck";
+import Step9Pets from "@pages/Step9Pets/Step9Pets";
 import { isStepValid, TOTAL_STEPS } from "./stepValidators";
 import { useWizard } from "./WizardContext";
 
@@ -23,6 +24,7 @@ const STEP_SCREENS = [
   Step6Risks,
   Step7EmergencyKit,
   Step8HousingCheck,
+  Step9Pets,
 ];
 
 export default function WizardLayout() {
