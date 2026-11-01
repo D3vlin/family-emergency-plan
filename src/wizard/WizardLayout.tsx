@@ -9,10 +9,19 @@ import Step3Contacts from "@pages/Step3Contacts/Step3Contacts";
 import Step4Disabilities from "@pages/Step4Disabilities/Step4Disabilities";
 import Step5FrequentSites from "@pages/Step5FrequentSites/Step5FrequentSites";
 import Step6Risks from "@pages/Step6Risks/Step6Risks";
+import Step7EmergencyKit from "@pages/Step7EmergencyKit/Step7EmergencyKit";
 import { isStepValid, TOTAL_STEPS } from "./stepValidators";
 import { useWizard } from "./WizardContext";
 
-const STEP_SCREENS = [Step1Header, Step2FamilyMembers, Step3Contacts, Step4Disabilities, Step5FrequentSites, Step6Risks];
+const STEP_SCREENS = [
+  Step1Header,
+  Step2FamilyMembers,
+  Step3Contacts,
+  Step4Disabilities,
+  Step5FrequentSites,
+  Step6Risks,
+  Step7EmergencyKit,
+];
 
 export default function WizardLayout() {
   const { planData, furthestAllowedStep, currentScreen, goTo, warningVisible, dismissWarning, expiredRedirectVisible, restartPlan } =

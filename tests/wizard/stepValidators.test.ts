@@ -8,6 +8,7 @@ import {
   STEP_DISABILITIES,
   STEP_SITES,
   STEP_RISKS,
+  STEP_EMERGENCY_KIT,
 } from "@wizard/stepValidators";
 import { createEmptyMember } from "@wizard/familyMember";
 
@@ -69,6 +70,11 @@ describe("isStepValid", () => {
     expect(isStepValid(STEP_RISKS, {})).toBe(true);
     expect(isStepValid(STEP_RISKS, { risks: {} })).toBe(true);
   });
+
+  it("step 7 (maletín de emergencia) is valid even with no items added", () => {
+    expect(isStepValid(STEP_EMERGENCY_KIT, {})).toBe(true);
+    expect(isStepValid(STEP_EMERGENCY_KIT, { emergencyKit: {} })).toBe(true);
+  });
 });
 
 describe("computeFurthestAllowedStep", () => {
@@ -90,7 +96,7 @@ describe("computeFurthestAllowedStep", () => {
     expect(computeFurthestAllowedStep(data)).toBe(STEP_DISABILITIES);
   });
 
-  it("unlocks past step 4 and through steps 5-6 (both optional) once the disability section is resolved too", () => {
+  it("unlocks past step 4 and through steps 5-7 (all optional) once the disability section is resolved too", () => {
     const member = {
       ...createEmptyMember("1"),
       name: "Ana",
@@ -103,6 +109,6 @@ describe("computeFurthestAllowedStep", () => {
       familyMembers: [member],
       disabilitiesNotApplicable: true,
     };
-    expect(computeFurthestAllowedStep(data)).toBe(STEP_RISKS + 1);
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_EMERGENCY_KIT + 1);
   });
 });
