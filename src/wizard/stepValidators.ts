@@ -1,7 +1,7 @@
 import { isDisabilitySectionValid, isMemberComplete, type FamilyMember } from "./familyMember";
 import type { Contact } from "./contact";
 
-export const TOTAL_STEPS = 6;
+export const TOTAL_STEPS = 7;
 
 export const STEP_HEADER = 1;
 export const STEP_FAMILY = 2;
@@ -9,6 +9,7 @@ export const STEP_CONTACTS = 3;
 export const STEP_DISABILITIES = 4;
 export const STEP_SITES = 5;
 export const STEP_RISKS = 6;
+export const STEP_EMERGENCY_KIT = 7;
 
 export interface HeaderStepData {
   planName?: string;
