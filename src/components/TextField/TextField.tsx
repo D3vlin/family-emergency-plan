@@ -10,6 +10,8 @@ interface TextFieldProps {
   disabled?: boolean;
   placeholder?: string;
   autoFocus?: boolean;
+  multiline?: boolean;
+  rows?: number;
 }
 
 export default function TextField({
@@ -24,26 +26,47 @@ export default function TextField({
   disabled,
   placeholder,
   autoFocus,
+  multiline = false,
+  rows,
 }: TextFieldProps) {
+  const className = `field-input ${error ? "field-input-invalid" : ""}`;
+
   return (
     <>
       <label htmlFor={id} className={required ? "field-label field-label-required" : "field-label"}>
         {label}
       </label>
-      <input
-        id={id}
-        className={`field-input ${error ? "field-input-invalid" : ""}`}
-        maxLength={maxLength}
-        required={required}
-        aria-required={required}
-        aria-invalid={error ? "true" : undefined}
-        inputMode={inputMode}
-        disabled={disabled}
-        placeholder={placeholder}
-        autoFocus={autoFocus}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
+      {multiline ? (
+        <textarea
+          id={id}
+          className={className}
+          rows={rows}
+          maxLength={maxLength}
+          required={required}
+          aria-required={required}
+          aria-invalid={error ? "true" : undefined}
+          disabled={disabled}
+          placeholder={placeholder}
+          autoFocus={autoFocus}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      ) : (
+        <input
+          id={id}
+          className={className}
+          maxLength={maxLength}
+          required={required}
+          aria-required={required}
+          aria-invalid={error ? "true" : undefined}
+          inputMode={inputMode}
+          disabled={disabled}
+          placeholder={placeholder}
+          autoFocus={autoFocus}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      )}
       {error && (
         <p role="alert" className="field-error-text">
           {error}

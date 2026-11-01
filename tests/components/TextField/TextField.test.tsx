@@ -60,4 +60,14 @@ describe("TextField", () => {
     expect(input).toHaveAttribute("inputMode", "numeric");
     expect(input).toHaveAttribute("placeholder", "Número de 1 a 120");
   });
+
+  it("renders a textarea instead of an input when multiline is set", () => {
+    const onChange = vi.fn();
+    render(<TextField id="notes" label="Notas" value="algo" onChange={onChange} multiline rows={3} />);
+    const field = screen.getByLabelText(/notas/i);
+    expect(field.tagName).toBe("TEXTAREA");
+    expect(field).toHaveAttribute("rows", "3");
+    fireEvent.change(field, { target: { value: "otra cosa" } });
+    expect(onChange).toHaveBeenCalledWith("otra cosa");
+  });
 });

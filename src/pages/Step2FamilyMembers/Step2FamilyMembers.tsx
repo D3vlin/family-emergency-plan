@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Modal from "@components/Modal/Modal";
+import StepPage from "@components/StepPage/StepPage";
 import TableRowActions from "@components/TableRowActions/TableRowActions";
-import { STEP_TITLES } from "@constants/stepTitles";
 import { useWizard } from "@wizard/WizardContext";
 import { createEmptyMember, MAX_FAMILY_MEMBERS, type FamilyMember } from "@wizard/familyMember";
 import { getAddDisabledTitle, newId } from "@utils/listEditor";
@@ -44,9 +44,7 @@ export default function Step2FamilyMembers() {
   const addDisabledTitle = getAddDisabledTitle(isEditorOpen, members.length >= MAX_FAMILY_MEMBERS, "20 integrantes");
 
   return (
-    <main>
-      <h1 className="page-title">Paso 2 — {STEP_TITLES[1]}</h1>
-
+    <StepPage step={2}>
       {members.length === 0 ? (
         <p className="empty-state">Sin integrantes agregados todavía.</p>
       ) : (
@@ -120,6 +118,6 @@ export default function Step2FamilyMembers() {
       >
         Agregar integrante
       </button>
-    </main>
+    </StepPage>
   );
 }

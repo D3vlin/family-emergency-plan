@@ -7,6 +7,7 @@ import {
   STEP_CONTACTS,
   STEP_DISABILITIES,
   STEP_SITES,
+  STEP_RISKS,
 } from "@wizard/stepValidators";
 import { createEmptyMember } from "@wizard/familyMember";
 
@@ -63,6 +64,11 @@ describe("isStepValid", () => {
     expect(isStepValid(STEP_SITES, {})).toBe(true);
     expect(isStepValid(STEP_SITES, { familyMembers: [] })).toBe(true);
   });
+
+  it("step 6 (riesgos y puntos de encuentro) is valid even with no fields filled", () => {
+    expect(isStepValid(STEP_RISKS, {})).toBe(true);
+    expect(isStepValid(STEP_RISKS, { risks: {} })).toBe(true);
+  });
 });
 
 describe("computeFurthestAllowedStep", () => {
@@ -84,7 +90,7 @@ describe("computeFurthestAllowedStep", () => {
     expect(computeFurthestAllowedStep(data)).toBe(STEP_DISABILITIES);
   });
 
-  it("unlocks past step 4 and through step 5 (optional) once the disability section is resolved too", () => {
+  it("unlocks past step 4 and through steps 5-6 (both optional) once the disability section is resolved too", () => {
     const member = {
       ...createEmptyMember("1"),
       name: "Ana",
@@ -97,6 +103,6 @@ describe("computeFurthestAllowedStep", () => {
       familyMembers: [member],
       disabilitiesNotApplicable: true,
     };
-    expect(computeFurthestAllowedStep(data)).toBe(STEP_SITES + 1);
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_RISKS + 1);
   });
 });

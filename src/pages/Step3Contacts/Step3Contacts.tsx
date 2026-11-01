@@ -1,8 +1,8 @@
 import { useState } from "react";
 import ConfirmDialog from "@components/ConfirmDialog/ConfirmDialog";
 import Modal from "@components/Modal/Modal";
+import StepPage from "@components/StepPage/StepPage";
 import TableRowActions from "@components/TableRowActions/TableRowActions";
-import { STEP_TITLES } from "@constants/stepTitles";
 import { formatPhoneForDisplay } from "@wizard/formatPhone";
 import { useWizard } from "@wizard/WizardContext";
 import { createEmptyContact, isDuplicatePhone, MAX_CONTACTS, type Contact } from "@wizard/contact";
@@ -48,8 +48,7 @@ export default function Step3Contacts() {
   const addDisabledTitle = getAddDisabledTitle(isEditorOpen, contacts.length >= MAX_CONTACTS, "20 contactos");
 
   return (
-    <main>
-      <h1 className="page-title">Paso 3 — {STEP_TITLES[2]}</h1>
+    <StepPage step={3}>
       {duplicateWarning && (
         <p role="status" className="alert-info mb-3">
           {duplicateWarning}
@@ -122,6 +121,6 @@ export default function Step3Contacts() {
       >
         Agregar contacto
       </button>
-    </main>
+    </StepPage>
   );
 }

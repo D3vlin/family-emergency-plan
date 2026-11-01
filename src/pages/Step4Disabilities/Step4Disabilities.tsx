@@ -4,9 +4,9 @@ import Modal from "@components/Modal/Modal";
 import ModalFormActions from "@components/ModalFormActions/ModalFormActions";
 import RemoveButton from "@components/RemoveButton/RemoveButton";
 import SelectField from "@components/SelectField/SelectField";
+import StepPage from "@components/StepPage/StepPage";
 import TextField from "@components/TextField/TextField";
 import { MAX_SHORT_FIELD_LENGTH } from "@constants/fieldLimits";
-import { STEP_TITLES } from "@constants/stepTitles";
 import { getAddDisabledTitle, newId } from "@utils/listEditor";
 import { useWizard } from "@wizard/WizardContext";
 import {
@@ -88,9 +88,7 @@ export default function Step4Disabilities() {
     : [];
 
   return (
-    <main>
-      <h1 className="page-title">Paso 4 — {STEP_TITLES[3]}</h1>
-
+    <StepPage step={4}>
       <label htmlFor="disabilities-not-applicable" className="field-checkbox-row text-sm font-medium">
         <input
           id="disabilities-not-applicable"
@@ -204,6 +202,6 @@ export default function Step4Disabilities() {
           )}
         </div>
       )}
-    </main>
+    </StepPage>
   );
 }
