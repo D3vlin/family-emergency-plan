@@ -2,6 +2,7 @@ import { useState } from "react";
 import ConfirmDialog from "@components/ConfirmDialog/ConfirmDialog";
 import Modal from "@components/Modal/Modal";
 import ModalFormActions from "@components/ModalFormActions/ModalFormActions";
+import RemoveButton from "@components/RemoveButton/RemoveButton";
 import SelectField from "@components/SelectField/SelectField";
 import TextField from "@components/TextField/TextField";
 import { MAX_SHORT_FIELD_LENGTH } from "@constants/fieldLimits";
@@ -133,9 +134,7 @@ export default function Step4Disabilities() {
                           <tr key={disability.id} className="table-body-row">
                             <td className="table-cell">{disability.type}</td>
                             <td className="p-2">
-                              <button type="button" className="btn-danger" onClick={() => removeDisability(member, disability.id)}>
-                                Eliminar
-                              </button>
+                              <RemoveButton onClick={() => removeDisability(member, disability.id)} />
                             </td>
                           </tr>
                         ))}
