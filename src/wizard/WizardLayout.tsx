@@ -7,10 +7,11 @@ import Step1Header from "@pages/Step1Header/Step1Header";
 import Step2FamilyMembers from "@pages/Step2FamilyMembers/Step2FamilyMembers";
 import Step3Contacts from "@pages/Step3Contacts/Step3Contacts";
 import Step4Disabilities from "@pages/Step4Disabilities/Step4Disabilities";
+import Step5FrequentSites from "@pages/Step5FrequentSites/Step5FrequentSites";
 import { isStepValid, TOTAL_STEPS } from "./stepValidators";
 import { useWizard } from "./WizardContext";
 
-const STEP_SCREENS = [Step1Header, Step2FamilyMembers, Step3Contacts, Step4Disabilities];
+const STEP_SCREENS = [Step1Header, Step2FamilyMembers, Step3Contacts, Step4Disabilities, Step5FrequentSites];
 
 export default function WizardLayout() {
   const { planData, furthestAllowedStep, currentScreen, goTo, warningVisible, dismissWarning, expiredRedirectVisible, restartPlan } =
