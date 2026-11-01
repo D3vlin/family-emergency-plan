@@ -70,4 +70,10 @@ describe("TextField", () => {
     fireEvent.change(field, { target: { value: "otra cosa" } });
     expect(onChange).toHaveBeenCalledWith("otra cosa");
   });
+
+  it("visually hides the label (while keeping it accessible) when hideLabel is set", () => {
+    render(<TextField id="repairs" label="Reparaciones necesarias" value="" onChange={() => {}} required={false} hideLabel />);
+    expect(screen.getByLabelText(/reparaciones necesarias/i)).toBeInTheDocument();
+    expect(screen.getByText(/reparaciones necesarias/i)).toHaveClass("sr-only");
+  });
 });

@@ -9,6 +9,7 @@ import {
   STEP_SITES,
   STEP_RISKS,
   STEP_EMERGENCY_KIT,
+  STEP_HOUSING_CHECK,
 } from "@wizard/stepValidators";
 import { createEmptyMember } from "@wizard/familyMember";
 
@@ -75,6 +76,19 @@ describe("isStepValid", () => {
     expect(isStepValid(STEP_EMERGENCY_KIT, {})).toBe(true);
     expect(isStepValid(STEP_EMERGENCY_KIT, { emergencyKit: {} })).toBe(true);
   });
+
+  it("step 8 (verificación de la vivienda) is valid with an empty housingCheck", () => {
+    expect(isStepValid(STEP_HOUSING_CHECK, {})).toBe(true);
+    expect(isStepValid(STEP_HOUSING_CHECK, { housingCheck: {} })).toBe(true);
+  });
+
+  it("step 8 requires estado once an item has been added, but not reparaciones/plazo/responsable", () => {
+    expect(isStepValid(STEP_HOUSING_CHECK, { housingCheck: { "Estado de ventanas": {} } })).toBe(false);
+    expect(
+      isStepValid(STEP_HOUSING_CHECK, { housingCheck: { "Estado de ventanas": { repairsNeeded: "Cambiar vidrio" } } }),
+    ).toBe(false);
+    expect(isStepValid(STEP_HOUSING_CHECK, { housingCheck: { "Estado de ventanas": { status: "malo" } } })).toBe(true);
+  });
 });
 
 describe("computeFurthestAllowedStep", () => {
@@ -96,7 +110,7 @@ describe("computeFurthestAllowedStep", () => {
     expect(computeFurthestAllowedStep(data)).toBe(STEP_DISABILITIES);
   });
 
-  it("unlocks past step 4 and through steps 5-7 (all optional) once the disability section is resolved too", () => {
+  it("unlocks past step 4 and through steps 5-8 (all optional while empty) once the disability section is resolved too", () => {
     const member = {
       ...createEmptyMember("1"),
       name: "Ana",
@@ -109,6 +123,23 @@ describe("computeFurthestAllowedStep", () => {
       familyMembers: [member],
       disabilitiesNotApplicable: true,
     };
-    expect(computeFurthestAllowedStep(data)).toBe(STEP_EMERGENCY_KIT + 1);
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_HOUSING_CHECK + 1);
+  });
+
+  it("stops at step 8 once a housing item is added without its estado resolved", () => {
+    const member = {
+      ...createEmptyMember("1"),
+      name: "Ana",
+      documentType: "Cédula de Ciudadanía",
+      documentNumber: "123",
+      age: "30",
+    };
+    const data = {
+      header: { planName: "Familia Perez", address: "Calle 1" },
+      familyMembers: [member],
+      disabilitiesNotApplicable: true,
+      housingCheck: { "Estado de ventanas": {} },
+    };
+    expect(computeFurthestAllowedStep(data)).toBe(STEP_HOUSING_CHECK);
   });
 });
