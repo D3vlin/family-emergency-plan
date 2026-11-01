@@ -182,3 +182,75 @@ describe("Cross-tab edit notice", () => {
     });
   });
 });
+
+describe("Reaching and returning from the review screen", () => {
+  const completeMember = {
+    id: "1",
+    name: "Ana",
+    documentType: "Cédula de Ciudadanía",
+    documentNumber: "123",
+    relationship: "",
+    age: "30",
+    phones: [],
+    illnesses: [],
+    medications: [],
+    disabilities: [],
+    requiresLifeSupport: "",
+    frequentSites: [],
+  };
+  const completePlan = {
+    header: { planName: "Familia Perez", address: "Calle 1" },
+    familyMembers: [completeMember],
+    disabilitiesNotApplicable: true,
+    petsNotApplicable: true,
+    pets: [],
+  };
+
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  function reviewOwnScrollCallCount() {
+    return (Element.prototype.scrollIntoView as ReturnType<typeof vi.fn>).mock.calls.filter(
+      (call) => call.length === 0,
+    ).length;
+  }
+
+  it("advances from step 9 to the review screen via Siguiente", () => {
+    savePlan({ data: completePlan, lastVisitedPath: "/step/9", lastActivityAt: Date.now() });
+    render(<App />);
+    expect(screen.getByRole("heading", { name: /Paso 9\b/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /siguiente/i }));
+    expect(screen.getByRole("heading", { name: /revisión final/i })).toBeInTheDocument();
+  });
+
+  it("re-focuses the single section touched during the detour", () => {
+    savePlan({ data: completePlan, lastVisitedPath: "/review", lastActivityAt: Date.now() });
+    render(<App />);
+
+    const section2 = screen.getByTestId("review-section-2");
+    fireEvent.click(within(section2).getByRole("button", { name: /editar/i }));
+    expect(screen.getByRole("heading", { name: /Paso 2\b/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /volver a la revisión/i }));
+    expect(screen.getByRole("heading", { name: /revisión final/i })).toBeInTheDocument();
+    expect(reviewOwnScrollCallCount()).toBe(1);
+  });
+
+  it("opens from the top when more than one section was touched during the detour", () => {
+    savePlan({ data: completePlan, lastVisitedPath: "/review", lastActivityAt: Date.now() });
+    render(<App />);
+
+    const section1 = screen.getByTestId("review-section-1");
+    fireEvent.click(within(section1).getByRole("button", { name: /editar/i }));
+    expect(screen.getByRole("heading", { name: /Paso 1\b/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /siguiente/i }));
+    expect(screen.getByRole("heading", { name: /Paso 2\b/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /volver a la revisión/i }));
+    expect(screen.getByRole("heading", { name: /revisión final/i })).toBeInTheDocument();
+    expect(reviewOwnScrollCallCount()).toBe(0);
+  });
+});

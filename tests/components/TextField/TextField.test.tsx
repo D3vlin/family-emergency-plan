@@ -76,4 +76,13 @@ describe("TextField", () => {
     expect(screen.getByLabelText(/reparaciones necesarias/i)).toBeInTheDocument();
     expect(screen.getByText(/reparaciones necesarias/i)).toHaveClass("sr-only");
   });
+
+  it("renders a date input with the given min when type is 'date'", () => {
+    render(
+      <TextField id="next-review" label="Fecha de próxima revisión" value="" onChange={() => {}} type="date" min="2026-10-18" />,
+    );
+    const input = screen.getByLabelText(/fecha de próxima revisión/i);
+    expect(input).toHaveAttribute("type", "date");
+    expect(input).toHaveAttribute("min", "2026-10-18");
+  });
 });

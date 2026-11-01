@@ -8,15 +8,15 @@ import { useWizard } from "@wizard/WizardContext";
 import { COMPLEMENTARY_ITEMS, SURVIVAL_SUPPLIES } from "./emergencyKitItems";
 
 export interface EmergencyKitData {
-  list1?: Record<string, boolean>;
-  list2?: Record<string, boolean>;
+  survivalSupplies?: Record<string, boolean>;
+  complementaryItems?: Record<string, boolean>;
 }
 
-type ListKey = "list1" | "list2";
+type ListKey = "survivalSupplies" | "complementaryItems";
 
 const LIST_CONFIG: Record<ListKey, { title: string; items: string[] }> = {
-  list1: { title: "Suministros de supervivencia", items: SURVIVAL_SUPPLIES },
-  list2: { title: "Documentos y elementos complementarios", items: COMPLEMENTARY_ITEMS },
+  survivalSupplies: { title: "Suministros de supervivencia", items: SURVIVAL_SUPPLIES },
+  complementaryItems: { title: "Documentos y elementos complementarios", items: COMPLEMENTARY_ITEMS },
 };
 
 export default function Step7EmergencyKit() {

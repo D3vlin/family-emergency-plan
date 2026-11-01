@@ -13,6 +13,7 @@ import Step6Risks from "@pages/Step6Risks/Step6Risks";
 import Step7EmergencyKit from "@pages/Step7EmergencyKit/Step7EmergencyKit";
 import Step8HousingCheck from "@pages/Step8HousingCheck/Step8HousingCheck";
 import Step9Pets from "@pages/Step9Pets/Step9Pets";
+import Review from "@pages/Review/Review";
 import { isStepValid, TOTAL_STEPS } from "./stepValidators";
 import { useWizard } from "./WizardContext";
 
@@ -41,18 +42,20 @@ export default function WizardLayout() {
     crossTabChangeDetected,
     lockedOut,
     takeOverAsOnlyEditor,
+    isEditingFromReview,
+    returnToReview,
   } = useWizard();
 
-  const requestedStep = currentScreen as number;
+  const requestedStep = currentScreen === "review" ? TOTAL_STEPS + 1 : (currentScreen as number);
 
   useEffect(() => {
     if (requestedStep > furthestAllowedStep) {
-      goTo(Math.min(furthestAllowedStep, TOTAL_STEPS));
+      goTo(furthestAllowedStep > TOTAL_STEPS ? "review" : furthestAllowedStep);
     }
   }, [requestedStep, furthestAllowedStep, goTo]);
 
-  const StepScreen = STEP_SCREENS[Math.min(requestedStep, TOTAL_STEPS) - 1];
-  const isCurrentStepValid = isStepValid(requestedStep, planData);
+  const StepScreen = currentScreen === "review" ? Review : STEP_SCREENS[requestedStep - 1];
+  const isCurrentStepValid = currentScreen === "review" || isStepValid(requestedStep, planData);
 
   return (
     <>
@@ -77,8 +80,10 @@ export default function WizardLayout() {
         <WizardNav
           currentStep={requestedStep}
           isCurrentStepValid={isCurrentStepValid}
+          isEditingFromReview={isEditingFromReview}
+          onReturnToReview={returnToReview}
           onPrevious={() => goTo(requestedStep - 1)}
-          onNext={() => isCurrentStepValid && goTo(requestedStep + 1)}
+          onNext={() => isCurrentStepValid && goTo(requestedStep + 1 > TOTAL_STEPS ? "review" : requestedStep + 1)}
         />
       </div>
       <ExpirationModals
