@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import CitationFooter from "@components/CitationFooter/CitationFooter";
 import ExpirationModals from "@components/ExpirationModals/ExpirationModals";
+import Modal from "@components/Modal/Modal";
 import ProgressBar from "@components/ProgressBar/ProgressBar";
 import WizardNav from "@components/WizardNav/WizardNav";
 import Step1Header from "@pages/Step1Header/Step1Header";
@@ -28,8 +29,19 @@ const STEP_SCREENS = [
 ];
 
 export default function WizardLayout() {
-  const { planData, furthestAllowedStep, currentScreen, goTo, warningVisible, dismissWarning, expiredRedirectVisible, restartPlan } =
-    useWizard();
+  const {
+    planData,
+    furthestAllowedStep,
+    currentScreen,
+    goTo,
+    warningVisible,
+    dismissWarning,
+    expiredRedirectVisible,
+    restartPlan,
+    crossTabChangeDetected,
+    lockedOut,
+    takeOverAsOnlyEditor,
+  } = useWizard();
 
   const requestedStep = currentScreen as number;
 
@@ -44,6 +56,14 @@ export default function WizardLayout() {
 
   return (
     <>
+      {crossTabChangeDetected && !lockedOut && (
+        <div role="status" className="alert-info mx-auto my-2 max-w-4xl">
+          <p>Este plan se está editando en otra pestaña con la misma web.</p>
+          <button type="button" className="btn-secondary mt-2" onClick={takeOverAsOnlyEditor}>
+            Trabajar solo desde aquí
+          </button>
+        </div>
+      )}
       <ProgressBar
         planData={planData}
         furthestAllowedStep={furthestAllowedStep}
@@ -68,6 +88,16 @@ export default function WizardLayout() {
         onGoToStart={restartPlan}
       />
       <CitationFooter />
+      {lockedOut && (
+        <Modal role="alertdialog" ariaLabel="Pestaña bloqueada">
+          <div className="text-center">
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              Este plan ahora se edita solo desde otra pestaña. Podés cerrar esta pestaña — lo que ya guardaste no se
+              pierde.
+            </p>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

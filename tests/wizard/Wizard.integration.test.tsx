@@ -1,7 +1,8 @@
-import { act, fireEvent, render, screen, cleanup } from "@testing-library/react";
+import { act, fireEvent, render, screen, cleanup, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App";
 import { STORAGE_KEY, savePlan } from "@storage/planStorage";
+import { getTabId, TAB_LOCK_KEY } from "@storage/tabLock";
 import { INACTIVITY_EXPIRE_MS, INACTIVITY_WARNING_MS } from "@constants/timing";
 
 function startFresh() {
@@ -12,6 +13,7 @@ function startFresh() {
 afterEach(() => {
   cleanup();
   localStorage.clear();
+  sessionStorage.clear();
 });
 
 describe("Wizard navigation guard", () => {
@@ -114,5 +116,69 @@ describe("Privacy/non-affiliation disclosure", () => {
     savePlan({ data: {}, lastVisitedPath: "/step/1", lastActivityAt: Date.now() });
     render(<App />);
     expect(screen.queryByText(/no es una herramienta oficial de la UNGRD/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("Cross-tab edit notice", () => {
+  it("explains that another tab is editing the same plan", () => {
+    startFresh();
+    act(() => {
+      window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY, newValue: "{}" }));
+    });
+    expect(screen.getByText(/se está editando en otra pestaña/i)).toBeInTheDocument();
+  });
+
+  describe("'Trabajar solo desde aquí' — exclusive editing", () => {
+    it("re-syncs this tab's data from storage before claiming the lock, so the other tab's save isn't lost", () => {
+      savePlan({ data: { header: { planName: "Original" } }, lastVisitedPath: "/step/1", lastActivityAt: Date.now() });
+      render(<App />);
+      expect(screen.getByLabelText(/nombre del plan/i)).toHaveValue("Original");
+
+      act(() => {
+        savePlan({ data: { header: { planName: "Nuevo" } }, lastVisitedPath: "/step/1", lastActivityAt: Date.now() });
+        window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY, newValue: "irrelevant" }));
+      });
+      expect(screen.getByLabelText(/nombre del plan/i)).toHaveValue("Original");
+
+      fireEvent.click(screen.getByRole("button", { name: /trabajar solo desde aquí/i }));
+
+      expect(screen.getByLabelText(/nombre del plan/i)).toHaveValue("Nuevo");
+      expect(screen.queryByText(/se está editando en otra pestaña/i)).not.toBeInTheDocument();
+      expect(localStorage.getItem(TAB_LOCK_KEY)).toBe(getTabId());
+    });
+
+    it("a lock claimed by a different tab id blocks this tab instead of showing the editable banner", () => {
+      startFresh();
+      act(() => {
+        localStorage.setItem(TAB_LOCK_KEY, "some-other-tab-id");
+        window.dispatchEvent(new StorageEvent("storage", { key: TAB_LOCK_KEY, newValue: "some-other-tab-id" }));
+      });
+
+      const dialog = screen.getByRole("alertdialog", { name: /pestaña bloqueada/i });
+      expect(within(dialog).getByText(/podés cerrar esta pestaña/i)).toBeInTheDocument();
+      expect(within(dialog).queryByRole("button")).not.toBeInTheDocument();
+    });
+
+    it("releasing the lock (its holder closed or reloaded) unlocks this tab and re-syncs its data", () => {
+      startFresh();
+      act(() => {
+        localStorage.setItem(TAB_LOCK_KEY, "some-other-tab-id");
+        window.dispatchEvent(new StorageEvent("storage", { key: TAB_LOCK_KEY, newValue: "some-other-tab-id" }));
+      });
+      expect(screen.getByRole("alertdialog", { name: /pestaña bloqueada/i })).toBeInTheDocument();
+
+      act(() => {
+        savePlan({
+          data: { header: { planName: "Guardado antes de cerrar" } },
+          lastVisitedPath: "/step/1",
+          lastActivityAt: Date.now(),
+        });
+        localStorage.removeItem(TAB_LOCK_KEY);
+        window.dispatchEvent(new StorageEvent("storage", { key: TAB_LOCK_KEY, newValue: null }));
+      });
+
+      expect(screen.queryByRole("alertdialog", { name: /pestaña bloqueada/i })).not.toBeInTheDocument();
+      expect(screen.getByLabelText(/nombre del plan/i)).toHaveValue("Guardado antes de cerrar");
+    });
   });
 });

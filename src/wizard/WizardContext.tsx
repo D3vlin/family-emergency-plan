@@ -9,8 +9,9 @@ import {
   type ReactNode,
 } from "react";
 import { useInactivityTimer } from "@hooks/useInactivityTimer";
-import { clearPlan, loadPlan, savePlan } from "@storage/planStorage";
+import { clearPlan, loadPlan, savePlan, STORAGE_KEY } from "@storage/planStorage";
 import { registerTab } from "@storage/tabRegistry";
+import { claimExclusiveEditing, isLockedByAnotherTab, releaseExclusiveEditingIfOwner, TAB_LOCK_KEY } from "@storage/tabLock";
 import { computeFurthestAllowedStep, isStepValid, STEP_HEADER, type PlanData } from "./stepValidators";
 import { normalizeMember } from "./familyMember";
 import { INACTIVITY_EXPIRE_MS } from "@constants/timing";
@@ -42,6 +43,9 @@ interface WizardContextValue {
   dismissWarning: () => void;
   expiredRedirectVisible: boolean;
   restartPlan: () => void;
+  crossTabChangeDetected: boolean;
+  lockedOut: boolean;
+  takeOverAsOnlyEditor: () => void;
 }
 
 const WizardContext = createContext<WizardContextValue | null>(null);
@@ -73,6 +77,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   );
   const [warningVisible, setWarningVisible] = useState(false);
   const [expiredRedirectVisible, setExpiredRedirectVisible] = useState(false);
+  const [crossTabChangeDetected, setCrossTabChangeDetected] = useState(false);
+  const [lockedOut, setLockedOut] = useState(() => isLockedByAnotherTab());
   const previousScreenRef = useRef<Screen | null>(null);
 
   const goTo = useCallback((next: Screen) => setCurrentScreen(next), []);
@@ -128,12 +134,29 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     const unregisterTab = registerTab();
     function handleUnload() {
       unregisterTab();
+      releaseExclusiveEditingIfOwner();
     }
     window.addEventListener("beforeunload", handleUnload);
     return () => {
       window.removeEventListener("beforeunload", handleUnload);
       handleUnload();
     };
+  }, []);
+
+  useEffect(() => {
+    function handleStorageEvent(event: StorageEvent) {
+      if (event.key === STORAGE_KEY) setCrossTabChangeDetected(true);
+      if (event.key === TAB_LOCK_KEY) {
+        const nowLocked = isLockedByAnotherTab();
+        setLockedOut(nowLocked);
+        if (!nowLocked) {
+          const fresh = loadPlan();
+          if (fresh) setPlanData(normalizePlanData(fresh.data as PlanData));
+        }
+      }
+    }
+    window.addEventListener("storage", handleStorageEvent);
+    return () => window.removeEventListener("storage", handleStorageEvent);
   }, []);
 
   const updateField = useCallback(
@@ -153,6 +176,14 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     registerActivity();
   }, [registerActivity]);
 
+  const takeOverAsOnlyEditor = useCallback(() => {
+    const fresh = loadPlan();
+    if (fresh) setPlanData(normalizePlanData(fresh.data as PlanData));
+    claimExclusiveEditing();
+    setLockedOut(false);
+    setCrossTabChangeDetected(false);
+  }, []);
+
   const restartPlan = useCallback(() => {
     clearPlan();
     setPlanData({});
@@ -171,6 +202,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     dismissWarning,
     expiredRedirectVisible,
     restartPlan,
+    crossTabChangeDetected,
+    lockedOut,
+    takeOverAsOnlyEditor,
   };
 
   return <WizardContext.Provider value={value}>{children}</WizardContext.Provider>;
