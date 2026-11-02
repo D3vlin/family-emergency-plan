@@ -1,5 +1,7 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import TextField from "@components/TextField/TextField";
+import { buildPdfFilename } from "@pdf/filename";
+import { generatePlanPdf } from "@pdf/exportPlan";
 import { isNextReviewDateValid, todayDateString, tomorrowDateString, type ClosingData } from "@wizard/closing";
 import type { Contact } from "@wizard/contact";
 import type { FamilyMember } from "@wizard/familyMember";
@@ -55,6 +57,8 @@ function Section({ step, title, planData, onEdit, children }: SectionProps) {
 export default function Review() {
   const { planData, updateField, startSectionEdit, consumeReviewFocusStep } = useWizard();
   const hasFocusedRef = useRef(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState(false);
 
   useEffect(() => {
     if (hasFocusedRef.current) return;
@@ -92,6 +96,23 @@ export default function Review() {
 
   const nextReviewDate = closing.nextReviewDate ?? "";
   const nextReviewError = nextReviewDate !== "" && !isNextReviewDateValid(nextReviewDate);
+  const nextReviewComplete = Boolean(nextReviewDate) && isNextReviewDateValid(nextReviewDate);
+
+  async function handleDownload() {
+    setPdfError(false);
+    setIsGeneratingPdf(true);
+    // Yield one tick so the "Generando…" state actually paints before the
+    // synchronous, CPU-heavy PDF generation blocks the main thread.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    try {
+      const doc = generatePlanPdf(planData);
+      doc.save(buildPdfFilename(header.planName ?? ""));
+    } catch {
+      setPdfError(true);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  }
 
   return (
     <main>
@@ -230,6 +251,21 @@ export default function Review() {
           onChange={(value) => updateField("closing", { ...closing, nextReviewDate: value })}
         />
       </section>
+
+      {pdfError && (
+        <p role="alert" className="alert-error mb-3">
+          No se pudo generar el PDF. Intentá de nuevo.
+        </p>
+      )}
+      <button
+        type="button"
+        className="btn-primary w-full"
+        onClick={handleDownload}
+        disabled={isGeneratingPdf || !nextReviewComplete}
+        title={nextReviewComplete ? undefined : "Completá la fecha de próxima revisión para descargar el plan"}
+      >
+        {isGeneratingPdf ? "Generando…" : "Descargar PDF"}
+      </button>
     </main>
   );
 }

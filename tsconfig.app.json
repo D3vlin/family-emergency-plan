@@ -21,6 +21,7 @@
       "@hooks/*": ["./src/hooks/*"],
       "@components/*": ["./src/components/*"],
       "@pages/*": ["./src/pages/*"],
+      "@pdf/*": ["./src/pdf/*"],
       "@constants/*": ["./src/constants/*"],
       "@storage/*": ["./src/storage/*"],
       "@utils/*": ["./src/utils/*"],

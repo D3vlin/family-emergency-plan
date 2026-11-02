@@ -14,6 +14,7 @@ export default defineConfig(({ command }) => ({
       '@hooks': fileURLToPath(new URL('./src/hooks', import.meta.url)),
       '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
       '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
+      '@pdf': fileURLToPath(new URL('./src/pdf', import.meta.url)),
       '@constants': fileURLToPath(new URL('./src/constants', import.meta.url)),
       '@storage': fileURLToPath(new URL('./src/storage', import.meta.url)),
       '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
