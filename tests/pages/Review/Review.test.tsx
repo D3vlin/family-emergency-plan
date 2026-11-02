@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { WizardProvider } from "@wizard/WizardContext";
 import { savePlan } from "@storage/planStorage";
+import * as exportPlan from "@pdf/exportPlan";
 import Review from "@pages/Review/Review";
 
 function seedAndRender(data: Record<string, unknown>) {
@@ -140,6 +141,12 @@ describe("Review", () => {
     expect(within(section).getByText(/Botiquín de primeros auxilios/)).toBeInTheDocument();
   });
 
+  it("has no generic 'Finalizar' button, but has 'Descargar PDF'", () => {
+    seedAndRender(basePlan);
+    expect(screen.queryByRole("button", { name: /^finalizar$/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /descargar pdf/i })).toBeInTheDocument();
+  });
+
   it("flags an invalid step with an alert and highlights its Editar button", () => {
     seedAndRender({ ...basePlan, familyMembers: [{ ...completeMember, name: "" }] });
     const section = screen.getByTestId("review-section-2");
@@ -147,18 +154,62 @@ describe("Review", () => {
     expect(within(section).getByRole("button", { name: /editar/i })).toHaveAttribute("data-highlighted", "true");
   });
 
-  it("Cierre: defaults última revisión to today, and flags an invalid próxima revisión date", () => {
+  it("Cierre: defaults última revisión to today and requires próxima revisión before 'Descargar PDF' is enabled", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-10-20T12:00:00Z"));
     seedAndRender({ ...basePlan, closing: {} });
     expect(screen.getByText(/última revisión: hoy \(2026-10-20\)/i)).toBeInTheDocument();
 
+    const downloadButton = screen.getByRole("button", { name: /descargar pdf/i });
+    expect(downloadButton).toBeDisabled();
+
     const closingSection = screen.getByTestId("review-section-closing");
     fireEvent.change(screen.getByLabelText(/fecha de próxima revisión/i), { target: { value: "2026-10-20" } });
     expect(within(closingSection).getByRole("alert")).toHaveTextContent(/debe ser una fecha futura/i);
+    expect(downloadButton).toBeDisabled();
 
     fireEvent.change(screen.getByLabelText(/fecha de próxima revisión/i), { target: { value: "2026-10-25" } });
     expect(within(closingSection).queryByRole("alert")).not.toBeInTheDocument();
+    expect(downloadButton).toBeEnabled();
     vi.useRealTimers();
+  });
+
+  it("downloads the PDF with a filename built from the plan name", async () => {
+    const saveSpy = vi.fn();
+    vi.spyOn(exportPlan, "generatePlanPdf").mockReturnValue({ save: saveSpy } as unknown as ReturnType<
+      typeof exportPlan.generatePlanPdf
+    >);
+    seedAndRender(basePlan);
+    fireEvent.click(screen.getByRole("button", { name: /descargar pdf/i }));
+    await waitFor(() => expect(saveSpy).toHaveBeenCalledWith("plan-familia-perez.pdf"));
+    vi.restoreAllMocks();
+  });
+
+  it("shows a generic error and allows retrying when PDF generation fails", async () => {
+    const spy = vi.spyOn(exportPlan, "generatePlanPdf").mockImplementation(() => {
+      throw new Error("boom");
+    });
+    seedAndRender(basePlan);
+    const button = screen.getByRole("button", { name: /descargar pdf/i });
+
+    fireEvent.click(button);
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/no se pudo generar el pdf/i));
+    expect(button).toBeEnabled();
+
+    spy.mockRestore();
+  });
+
+  it("shows a 'Generando…' loading state while the PDF is being built", async () => {
+    const saveSpy = vi.fn();
+    vi.spyOn(exportPlan, "generatePlanPdf").mockReturnValue({ save: saveSpy } as unknown as ReturnType<
+      typeof exportPlan.generatePlanPdf
+    >);
+    seedAndRender(basePlan);
+    const button = screen.getByRole("button", { name: /descargar pdf/i });
+
+    fireEvent.click(button);
+    expect(screen.getByRole("button", { name: /generando/i })).toBeDisabled();
+    await waitFor(() => expect(screen.getByRole("button", { name: /descargar pdf/i })).toBeEnabled());
+    vi.restoreAllMocks();
   });
 });
